@@ -62,9 +62,14 @@ class SendgridTransport extends AbstractTransport {
         }
 
         $json = array(
-            'to' => $this->_getAddress(array_splice($this->_recipients, 0, $this->_config['count'])),
             'category' => !empty($this->_headers['X-Category']) ? $this->_headers['X-Category'] : $this->_config['category'],
         );
+        
+        $toRecipients = $this->_splitAddress(array_splice($this->_recipients, 0, $this->_config['count']));
+        $cc = $this->_cakeEmail->cc();
+        $ccRecipients = $this->_splitAddress($cc);
+        $bcc = $this->_cakeEmail->bcc();
+        $bccRecipients = $this->_splitAddress($bcc);
 
         //Sendgrid Substitution Tags
         if (!empty($this->_headers['X-Sub'])) {
@@ -77,7 +82,12 @@ class SendgridTransport extends AbstractTransport {
             'api_user'  => $this->_config['username'],
             'api_key'   => $this->_config['password'],
             'x-smtpapi' => json_encode($json),
-            'to'        => 'example3@sendgrid.com',
+            'to'        => $toRecipients['email'],
+            'toname'    => $toRecipients['name'],
+            'cc'        => $ccRecipients['email'],
+            'ccname'    => $ccRecipients['name'],
+            'bcc'       => $bccRecipients['email'],
+            'bccname'   => $bccRecipients['name'],
             'subject'   => $this->_cakeEmail->subject(),
             'html'      => $this->_cakeEmail->message('html'),
             'text'      => $this->_cakeEmail->message('text'),
@@ -100,21 +110,24 @@ class SendgridTransport extends AbstractTransport {
             return $this->_sendPart();
         }
     }
+    
+    private function _splitAddress($addresses = array()) {
 
-    private function _getAddress($addresses = array(), $asString = false) {
-
-        $output = array();
+        $output = array(
+	        'email' => array(),
+	        'name' => array()
+        );
 
         foreach($addresses as $key => $value) {
-            $output[] = "$value <{$key}>";
+	        $output['email'][] = $key;
+	        if ($key == $value) {
+		   	$output['name'][] = '';
+		} else {
+			$output['name'][] = $value;
+		}
         }
 
-        if ($asString) {
-            return implode(', ', $output);
-        }
-        else {
-            return $output;
-        }
+        return $output;
     }
 
     private function _exec($params) {
