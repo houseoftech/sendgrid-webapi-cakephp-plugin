@@ -63,6 +63,7 @@ class SendgridTransport extends AbstractTransport {
 
         $json = array(
             'category' => !empty($this->_headers['X-Category']) ? $this->_headers['X-Category'] : $this->_config['category'],
+            'unique_args' => !empty($this->_headers['X-Unique-Args']) ? $this->_headers['X-Unique-Args'] : $this->_config['unique_args']
         );
         
         $toRecipients = $this->_splitAddress(array_splice($this->_recipients, 0, $this->_config['count']));
