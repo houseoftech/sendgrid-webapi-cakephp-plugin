@@ -115,17 +115,17 @@ class SendgridTransport extends AbstractTransport {
     private function _splitAddress($addresses = array()) {
 
         $output = array(
-	        'email' => array(),
-	        'name' => array()
+	       'email' => array(),
+	       'name' => array()
         );
 
         foreach($addresses as $key => $value) {
-	        $output['email'][] = $key;
-	        if ($key == $value) {
-		   	$output['name'][] = '';
-		} else {
-			$output['name'][] = $value;
-		}
+	       $output['email'][] = $key;
+	       if ($key == $value) {
+		      $output['name'][] = '';
+	       } else {
+	           $output['name'][] = $value;
+	       }
         }
 
         return $output;
